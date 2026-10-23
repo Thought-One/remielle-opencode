@@ -33,7 +33,7 @@
 ## 安装
 
 ```powershell
-cd C:\Users\DIY\remielle-opencode
+cd C:\Users\username\remielle-opencode
 node scripts/install.mjs
 ```
 
