@@ -1,0 +1,18 @@
+{
+  "schema": "opencode.gui-extension/1",
+  "id": "remielle.pet",
+  "name": "Remielle 桌宠",
+  "version": "1.0.0",
+  "renderer": "renderer.js",
+  "main": "main.js",
+  "imports": {
+    "renderer": [],
+    "main": [
+      "electron",
+      "node:fs",
+      "node:path",
+      "node:http",
+      "node:https"
+    ]
+  }
+}

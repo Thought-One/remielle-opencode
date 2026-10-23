@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' file: data:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Remielle</title>
+    <link rel="stylesheet" href="pet.css" />
+  </head>
+  <body>
+    <div id="stage" class="stage">
+      <div id="status" class="status" hidden>
+        <span id="status-dot" class="status__dot"></span>
+        <span id="status-text" class="status__text">待机中</span>
+        <span id="status-model" class="status__model"></span>
+      </div>
+
+      <div id="bubble" class="bubble interactive" hidden>
+        <button id="bubble-close" class="bubble__close" type="button" aria-label="关闭气泡">×</button>
+        <div class="bubble__head">
+          <span id="bubble-title" class="bubble__title">运行完成</span>
+          <span id="bubble-duration" class="bubble__duration">0.0s</span>
+        </div>
+        <div class="bubble__hero">
+          <span id="bubble-tokens" class="bubble__value">0</span>
+          <span class="bubble__unit">tokens</span>
+          <span class="bubble__sep">·</span>
+          <span id="bubble-cost" class="bubble__cost">$0</span>
+        </div>
+        <div id="bubble-detail" class="bubble__detail"></div>
+        <div id="bubble-error" class="bubble__error" hidden></div>
+        <div id="bubble-total" class="bubble__total"></div>
+        <div class="bubble__tail"></div>
+      </div>
+
+      <div id="pet-wrap" class="pet interactive">
+        <div class="pet__shadow"></div>
+        <img id="pet-a" class="pet__img is-active" alt="Remielle" draggable="false" />
+        <img id="pet-b" class="pet__img" alt="" draggable="false" />
+        <button id="settings-btn" class="settings-btn interactive" type="button" aria-label="打开设置">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3.2"></circle>
+            <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.2.4.6.8 1 .6.4.2.7.2 1.1.2H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div id="placeholder" class="placeholder interactive" hidden>
+        <div class="placeholder__face">· ᴗ ·</div>
+        <div class="placeholder__title">缺少动画资源</div>
+        <div class="placeholder__hint">右键打开设置，检查资源文件夹</div>
+      </div>
+    </div>
+    <script src="pet.js"></script>
+  </body>
+</html>

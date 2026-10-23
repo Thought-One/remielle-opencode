@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' file: data:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Remielle 桌宠设置</title>
+    <link rel="stylesheet" href="settings.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand__mark">R</div>
+        <div class="brand__text">
+          <h1>Remielle 桌宠</h1>
+          <p>OpenCode Desktop 扩展 <span id="version">v1.0.0</span></p>
+        </div>
+      </div>
+      <div id="conn" class="conn">
+        <span id="conn-dot" class="conn__dot"></span>
+        <span id="conn-text">连接中…</span>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="card preview-card">
+        <div class="preview">
+          <div class="preview__stage">
+            <img id="preview-img" alt="动画预览" draggable="false" />
+            <div id="preview-empty" class="preview__empty" hidden>动画文件缺失</div>
+          </div>
+          <div class="preview__side">
+            <div class="preview__live">
+              <div class="preview__label">实时状态</div>
+              <div id="live-state" class="preview__state">待机中</div>
+              <div id="live-model" class="preview__model">—</div>
+              <div id="live-sessions" class="preview__sessions">0 个会话运行中</div>
+            </div>
+            <label class="select-field">
+              <span>预览动画</span>
+              <select id="preview-select">
+                <option value="idle">待机</option>
+                <option value="penIdle">拿笔待机</option>
+                <option value="think">思考</option>
+                <option value="drawIntermittent">间歇绘制</option>
+                <option value="drawContinuous">连续绘制</option>
+                <option value="expect">期待</option>
+                <option value="smug">得意</option>
+              </select>
+            </label>
+            <div class="preview__actions">
+              <button id="test-bubble" class="btn btn--ghost" type="button">预览气泡</button>
+              <button id="reload-assets" class="btn btn--ghost" type="button">重载动画</button>
+            </div>
+          </div>
+        </div>
+        <p class="card__note">修改会自动保存并立即生效。右键桌宠显示齿轮，点击齿轮打开此窗口。</p>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <h2>显示</h2>
+          <span class="card__hint">位置、大小与不透明度</span>
+        </div>
+
+        <div class="field">
+          <div class="field__label">
+            <span>显示桌宠</span>
+            <small>关闭后立即隐藏，不影响正在进行的会话</small>
+          </div>
+          <label class="switch">
+            <input id="enabled" type="checkbox" />
+            <span class="switch__track"><span class="switch__thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="field field--column">
+          <div class="field__top">
+            <div class="field__label"><span>大小</span><small>按比例缩放整只桌宠</small></div>
+            <output id="scale-value" class="value">0.85×</output>
+          </div>
+          <input id="scale" type="range" min="0.6" max="1.8" step="0.05" />
+        </div>
+
+        <div class="field field--column">
+          <div class="field__top">
+            <div class="field__label"><span>不透明度</span><small>让桌宠更融入背景</small></div>
+            <output id="opacity-value" class="value">100%</output>
+          </div>
+          <input id="opacity" type="range" min="0.25" max="1" step="0.05" />
+        </div>
+
+        <div class="field field--two">
+          <label class="field__label" for="marginRight">
+            <span>右侧间距</span>
+            <small>桌宠与对话框之间的横向距离</small>
+          </label>
+          <input id="marginRight" class="input input--number" type="number" min="0" max="240" step="1" />
+          <label class="field__label" for="marginBottom">
+            <span>底部偏移</span>
+            <small>桌宠脚底相对对话框底部的偏移</small>
+          </label>
+          <input id="marginBottom" class="input input--number" type="number" min="0" max="240" step="1" />
+        </div>
+
+        <div class="field">
+          <div class="field__label">
+            <span>显示状态胶囊</span>
+            <small>在桌宠上方显示模型与当前状态</small>
+          </div>
+          <label class="switch">
+            <input id="showStatus" type="checkbox" />
+            <span class="switch__track"><span class="switch__thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="field">
+          <div class="field__label">
+            <span>单击桌宠</span>
+            <small>右键桌宠显示齿轮按钮，再点击齿轮打开设置</small>
+          </div>
+          <select id="clickAction" class="input input--select">
+            <option value="smug">播放「得意」</option>
+            <option value="settings">打开设置</option>
+            <option value="none">什么都不做</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <h2>气泡与统计</h2>
+          <span class="card__hint">每次运行结束后展示 token 与费用</span>
+        </div>
+
+        <div class="field">
+          <div class="field__label">
+            <span>运行结束气泡</span>
+            <small>使用 OpenCode 会话的实时用量数据</small>
+          </div>
+          <label class="switch">
+            <input id="showBubble" type="checkbox" />
+            <span class="switch__track"><span class="switch__thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="field field--column">
+          <div class="field__top">
+            <div class="field__label"><span>气泡停留时间</span><small>自动淡出前的等待时间</small></div>
+            <output id="bubble-value" class="value">7.0s</output>
+          </div>
+          <input id="bubbleSeconds" type="range" min="2" max="30" step="0.5" />
+        </div>
+
+        <div class="field">
+          <div class="field__label">
+            <span>显示累计用量</span>
+            <small>在气泡底部显示会话累计 token 与费用</small>
+          </div>
+          <label class="switch">
+            <input id="showTotal" type="checkbox" />
+            <span class="switch__track"><span class="switch__thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="field">
+          <div class="field__label">
+            <span>子会话也弹气泡</span>
+            <small>子智能体结束时也会显示，默认关闭</small>
+          </div>
+          <label class="switch">
+            <input id="subagentBubbles" type="checkbox" />
+            <span class="switch__track"><span class="switch__thumb"></span></span>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <h2>动画</h2>
+          <span class="card__hint">状态切换与绘制判定</span>
+        </div>
+
+        <div class="field field--column">
+          <div class="field__top">
+            <div class="field__label"><span>完成动画时长</span><small>每次运行结束后「期待」动画的停留时间</small></div>
+            <output id="expect-value" class="value">4.5s</output>
+          </div>
+          <input id="expectSeconds" type="range" min="0.5" max="15" step="0.5" />
+        </div>
+
+        <div class="field field--column">
+          <div class="field__top">
+            <div class="field__label"><span>绘制动画保持</span><small>文件操作后保持绘制姿势的时间</small></div>
+            <output id="draw-value" class="value">2.0s</output>
+          </div>
+          <input id="drawHoldMs" type="range" min="300" max="10000" step="100" />
+        </div>
+
+        <div class="field field--two">
+          <label class="field__label" for="continuousCount">
+            <span>连续绘制阈值</span>
+            <small>窗口内多少次文件操作后进入连续绘制</small>
+          </label>
+          <input id="continuousCount" class="input input--number" type="number" min="1" max="20" step="1" />
+          <label class="field__label" for="continuousWindow">
+            <span>统计窗口</span>
+            <small>毫秒内累计文件操作</small>
+          </label>
+          <input id="continuousWindow" class="input input--number" type="number" min="1000" max="60000" step="500" />
+        </div>
+
+        <div class="field field--column">
+          <div class="field__label">
+            <span>文件操作工具</span>
+            <small>逗号分隔，命中这些工具时播放绘制动画</small>
+          </div>
+          <input id="fileTools" class="input input--text" type="text" spellcheck="false" />
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <h2>资源</h2>
+          <span id="asset-badge" class="badge">检查中…</span>
+        </div>
+
+        <div class="field field--column">
+          <div class="field__label">
+            <span>资源文件夹</span>
+            <small>包含待机、思考、绘制等 GIF 的文件夹</small>
+          </div>
+          <div class="path-row">
+            <input id="resPath" class="input input--text" type="text" spellcheck="false" placeholder="自动检测" />
+            <button id="browse-res" class="btn btn--ghost" type="button">浏览…</button>
+            <button id="open-res" class="btn btn--ghost" type="button">打开</button>
+          </div>
+        </div>
+
+        <div class="asset-status">
+          <div id="asset-summary" class="asset-status__summary">—</div>
+          <div id="asset-missing" class="asset-status__missing" hidden></div>
+          <div id="asset-dir" class="asset-status__dir"></div>
+        </div>
+
+        <div class="field">
+          <div class="field__label">
+            <span>启动时同步资源</span>
+            <small>检测到源文件更新后自动复制到扩展目录</small>
+          </div>
+          <span class="badge badge--muted">自动</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card__head">
+          <h2>诊断</h2>
+          <span class="card__hint">连接、日志与调试</span>
+        </div>
+
+        <div class="field">
+          <div class="field__label">
+            <span>调试日志</span>
+            <small>把更多事件写入 remielle.log</small>
+          </div>
+          <label class="switch">
+            <input id="debug" type="checkbox" />
+            <span class="switch__track"><span class="switch__thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="button-row">
+          <button id="test-connection" class="btn btn--ghost" type="button">测试服务器连接</button>
+          <button id="open-log" class="btn btn--ghost" type="button">打开日志</button>
+          <button id="refresh-runtime" class="btn btn--ghost" type="button">刷新诊断</button>
+        </div>
+
+        <pre id="debug-output" class="debug-output">点击「刷新诊断」查看扩展运行信息。</pre>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <button id="reset" class="btn btn--danger" type="button">恢复默认</button>
+      <div class="footer__spacer"></div>
+      <span id="save-note" class="save-note">所有修改自动保存</span>
+      <button id="close" class="btn btn--primary" type="button">完成</button>
+    </footer>
+
+    <script src="settings.js"></script>
+  </body>
+</html>
