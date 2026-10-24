@@ -83,6 +83,8 @@ class FakeBrowserWindow extends EventEmitter {
     this.opacity = 1
     this.backgroundColors = []
     this.backgroundValue = '#00000000'
+    this.alwaysOnTop = !!options.alwaysOnTop
+    this.moveTopCount = 0
     this.webContents = new FakeWebContents(this)
     windows.push(this)
   }
@@ -154,7 +156,15 @@ class FakeBrowserWindow extends EventEmitter {
   getTitle() {
     return this.options.title || 'OpenCode'
   }
-  setAlwaysOnTop() {}
+  setAlwaysOnTop(value) {
+    this.alwaysOnTop = !!value
+  }
+  isAlwaysOnTop() {
+    return this.alwaysOnTop
+  }
+  moveTop() {
+    this.moveTopCount += 1
+  }
   static getAllWindows() {
     return windows.filter((win) => !win.destroyed)
   }
@@ -347,9 +357,10 @@ await sleep(1600)
 
 const petWindow = windows.find((win) => win !== mainWindow)
 assert.ok(petWindow, 'pet window should be created')
-assert.equal(petWindow.options.parent, undefined)
+assert.equal(petWindow.options.parent, mainWindow, 'pet should be owned by the OpenCode window')
 assert.equal(petWindow.options.transparent, true)
-assert.equal(petWindow.options.alwaysOnTop, true)
+assert.equal(petWindow.options.alwaysOnTop, false, 'pet must not be a global topmost window')
+assert.equal(petWindow.alwaysOnTop, false, 'pet must not become topmost at runtime')
 assert.equal(petWindow.options.focusable, false)
 assert.ok(petWindow.bounds.x > 800, 'pet should sit beside the composer: ' + petWindow.bounds.x)
 
@@ -360,6 +371,24 @@ assert.ok(petWindow.loadedFile.endsWith('pet.html'))
 assert.equal(petWindow.visible, true)
 assert.ok(petWindow.bounds.width > 0 && petWindow.bounds.height > 0)
 assert.ok(petWindow.bounds.x < mainWindow.contentBounds.width)
+
+// Switching to another application must not hide or raise the pet. It stays
+// in OpenCode's layer, so the other application covers it normally.
+globalThis.__fakeFocusedWindow = null
+mainWindow.emit('blur')
+await sleep(60)
+assert.equal(petWindow.visible, true, 'pet should stay visible when OpenCode loses focus')
+assert.equal(petWindow.alwaysOnTop, false, 'blur must not make the pet topmost')
+
+// Returning to OpenCode raises it above the main window within the normal
+// (non-topmost) layer, without covering other applications globally.
+const moveTopsBeforeFocus = petWindow.moveTopCount
+globalThis.__fakeFocusedWindow = mainWindow
+mainWindow.emit('focus')
+await sleep(60)
+assert.equal(petWindow.visible, true, 'pet should remain visible when OpenCode regains focus')
+assert.ok(petWindow.moveTopCount > moveTopsBeforeFocus, 'pet should be raised above OpenCode on focus')
+assert.equal(petWindow.alwaysOnTop, false, 'focus must not enable always-on-top')
 
 const messages = petWindow.webContents.sent
 const states = messages.filter((message) => message.channel === 'remielle:state').map((message) => message.payload)

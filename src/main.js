@@ -48,6 +48,7 @@ let lastIgnoreState = null
 let lastBackgroundReset = 0
 let petBackgroundGuard = false
 let petRecreateAttempted = false
+let lastPetHostFocus = null
 
 const runtime = {
   userData: '',
@@ -631,7 +632,6 @@ function attachMainWindowUnsafe(win) {
     listen(event, relayout)
   }
   listen('focus', () => {
-    syncPetTop()
     layoutPet()
   })
   listen('blur', () => {
@@ -692,7 +692,12 @@ function createPetWindow() {
       skipTaskbar: true,
       hasShadow: false,
       roundedCorners: false,
-      alwaysOnTop: true,
+      parent: mainWin,
+      modal: false,
+      // Owned by the OpenCode window, never a global topmost overlay. The pet
+      // stays above OpenCode but is covered by other applications, like any
+      // normal tool window. This is what keeps it from floating over them.
+      alwaysOnTop: false,
       acceptFirstMouse: true,
       show: false,
       title: 'Remielle',
@@ -716,6 +721,7 @@ function createPetWindow() {
   petReady = false
   lastIgnoreState = null
   lastBackgroundReset = 0
+  lastPetHostFocus = null
   // OpenCode themes iterate every BrowserWindow and call setBackgroundColor.
   // Keep this window transparent even when the theme asks for an opaque color.
   try {
@@ -754,10 +760,6 @@ function createPetWindow() {
       sendState(true)
       layoutPet()
       pumpBubbles()
-      if (config.enabled && mainWin && !mainWin.isMinimized()) {
-        safe(() => petWin.showInactive())
-        safe(() => petWin.setOpacity(config.opacity))
-      }
       log('info', 'pet window loaded')
       if (petWin?.webContents?.executeJavaScript) {
         petWin.webContents
@@ -799,6 +801,7 @@ function createPetWindow() {
     petWin = null
     petReady = false
     showingBubble = false
+    lastPetHostFocus = null
     if (bubbleTimer) clearTimeout(bubbleTimer)
     bubbleTimer = null
   })
@@ -818,6 +821,7 @@ function destroyPetWindow() {
   petReady = false
   showingBubble = false
   lastIgnoreState = null
+  lastPetHostFocus = null
   if (bubbleTimer) clearTimeout(bubbleTimer)
   bubbleTimer = null
 }
@@ -1041,22 +1045,46 @@ function layoutPet() {
   }
   safe(() => petWin.setOpacity(config.opacity))
   enforcePetBackground(false)
-  if (!petWin.isVisible()) {
-    safe(() => petWin.showInactive())
-    safe(() => petWin.setOpacity(config.opacity))
-  }
   syncPetTop()
 }
 
 function syncPetTop() {
   if (!petWin || petWin.isDestroyed()) return
-  const active = !!mainWin && !mainWin.isDestroyed() && safe(() => mainWin.isFocused(), false) === true
-  if (safe(() => petWin.isAlwaysOnTop(), false) !== active) {
-    safe(() => petWin.setAlwaysOnTop(active, 'floating'))
+  // Defensive: never let the pet become a system-wide topmost window. It is
+  // owned by the OpenCode window (see `parent` above), so it shares OpenCode's
+  // layer: above OpenCode, but covered by applications above OpenCode.
+  if (safe(() => petWin.isAlwaysOnTop(), false)) {
+    safe(() => petWin.setAlwaysOnTop(false))
   }
-  if (active && config.enabled && !mainWin.isMinimized() && !petWin.isVisible()) {
+  const hostAlive =
+    !!mainWin &&
+    !mainWin.isDestroyed() &&
+    safe(() => mainWin.isVisible(), false) === true &&
+    safe(() => mainWin.isMinimized(), true) === false
+  const focused =
+    !!mainWin && !mainWin.isDestroyed() && safe(() => mainWin.isFocused(), false) === true
+  if (!config.enabled || !hostAlive) {
+    if (petWin.isVisible()) safe(() => petWin.hide())
+    lastPetHostFocus = focused
+    return
+  }
+  // Keep the pet visible when OpenCode loses focus. It stays in OpenCode's
+  // z-order group, so another application that overlaps OpenCode also covers
+  // the pet. Only raise it when OpenCode itself is activated again.
+  if (!petWin.isVisible()) {
+    if (!focused) {
+      lastPetHostFocus = focused
+      return
+    }
     safe(() => petWin.showInactive())
+    safe(() => petWin.setOpacity(config.opacity))
   }
+  if (focused && lastPetHostFocus !== true) {
+    // Raise within the normal (non-topmost) layer, so it sits above OpenCode
+    // but still below any topmost or newly activated application.
+    safe(() => petWin.moveTop())
+  }
+  lastPetHostFocus = focused
 }
 
 function updateMousePassthrough() {
